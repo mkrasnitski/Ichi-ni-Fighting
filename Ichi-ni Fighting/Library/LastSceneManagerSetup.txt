@@ -1,0 +1,4 @@
+sceneSetups:
+- path: Assets/Ichi-ni Fighting.unity
+  isLoaded: 1
+  isActive: 1
