@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,16 +9,18 @@ public class master : MonoBehaviour {
     Character c;
     Rigidbody2D rb;
     Animator anim;
+    Sprite[] subSprites;
 
     void Start () {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         c = new Character(8f, 35f, 3, rb, anim, name);
-        PolygonCollider2D[] pc = gameObject.GetComponents<PolygonCollider2D>();
+        var pc = gameObject.GetComponents<PolygonCollider2D>();
         foreach (PolygonCollider2D p in pc)
         {
-            //print(p.points.Length);
+            print(p.GetInstanceID());
         }
+        subSprites = Resources.LoadAll<Sprite>("Characters/"+name+"_Sprites"); ;
         Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), GameObject.Find("player2").GetComponent<BoxCollider2D>());
         if(name == "player1")
         {
@@ -45,13 +48,22 @@ public class master : MonoBehaviour {
     }
 
     void FixedUpdate () {
-        run();
-    }
-
-    void run()
-    {
         c.move();
         c.attack();
         c.advanceFrame();
     }
+
+    //private void LateUpdate()
+    //{
+    //    foreach (SpriteRenderer r in GetComponentsInChildren<SpriteRenderer>())
+    //    {
+    //        var newSprite = Array.Find(subSprites, item => item.name == r.sprite.name);
+    //        print(newSprite);
+    //        if (newSprite)
+    //        {
+    //            r.sprite = newSprite;
+    //            print("asdf");
+    //        }
+    //    }
+    //}
 }

@@ -12,6 +12,7 @@ public class Character : MonoBehaviour
     private bool canJump = true;
     private string player;
     private int orientation;
+    private bool landing;
     
     public static int framecounter = 0;
     private int count = 0;
@@ -177,11 +178,8 @@ public class Character : MonoBehaviour
         //Single Jump only
         if (isLow(rb.velocity[1]))
         {
-            if(!(anim.GetBool("punch") || anim.GetBool("kick")))
-            {
-                canJump = true;
-                anim.SetBool("jump", false);
-            }
+            canJump = true;
+            anim.SetBool("jump", false);
         }
     }
 
@@ -232,7 +230,7 @@ public class Character : MonoBehaviour
         }
         else
         {
-            if (framecounter - count >= move.Total)
+            if (framecounter - count >= move.Total || ((move == punchAir || move == kickAir) && isLow(rb.velocity[1])))
             {
                 anim.SetBool(moveString, false);
             }
