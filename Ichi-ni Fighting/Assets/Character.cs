@@ -26,12 +26,12 @@ public class Character : MonoBehaviour
     private KeyCode punch = KeyCode.G;
     private KeyCode kick = KeyCode.H;
 
-    private Move punchGround = new Move(2, 4, 25);
-    private Move punchAir = new Move(2, 4, 20);
-    private Move punchSquat = new Move(2, 4, 15);
-    private Move kickGround = new Move(2, 4, 35);
-    private Move kickAir = new Move(2, 4, 25);
-    private Move kickSquat = new Move(2, 4, 15);
+    private Move punchGround = new Move(2, 4, 25, "punchGround");
+    private Move punchAir = new Move(2, 4, 20, "punchAir");
+    private Move punchSquat = new Move(2, 4, 15, "punchSquat");
+    private Move kickGround = new Move(2, 4, 35, "kickGround");
+    private Move kickAir = new Move(2, 4, 25, "kickAir");
+    private Move kickSquat = new Move(2, 4, 15, "kickSquat");
 
     Rigidbody2D rb;
     Animator anim;
@@ -178,8 +178,11 @@ public class Character : MonoBehaviour
         //Single Jump only
         if (isLow(rb.velocity[1]))
         {
-            canJump = true;
-            anim.SetBool("jump", false);
+            if (!(anim.GetBool("punch") || anim.GetBool("kick")))
+            {
+                canJump = true;
+                anim.SetBool("jump", false);
+            } 
         }
     }
 
@@ -230,10 +233,16 @@ public class Character : MonoBehaviour
         }
         else
         {
-            if (framecounter - count >= move.Total || ((move == punchAir || move == kickAir) && isLow(rb.velocity[1])))
+            if (framecounter - count >= move.Total)
             {
                 anim.SetBool(moveString, false);
             }
+            //if (move.Name == "punchAir" || move.Name == "kickAir")
+            //{
+            //    if (isLow(rb.velocity[1])){
+            //        anim.SetBool("jump", false);
+            //    }
+            //}
         }
 
         if (state == "punch")

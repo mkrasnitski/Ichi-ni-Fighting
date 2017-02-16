@@ -14,7 +14,7 @@ public class master : MonoBehaviour {
     void Start () {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        c = new Character(8f, 35f, 3, rb, anim, name);
+        c = new Character(8f, 27.5f, 3, rb, anim, name);
         var pc = gameObject.GetComponents<PolygonCollider2D>();
         foreach (PolygonCollider2D p in pc)
         {
