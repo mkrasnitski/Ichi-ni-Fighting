@@ -259,12 +259,12 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void hurtboxUpdate(master m)
+    public void hurtboxUpdate()
     {
-        if (player == "player1")
+        //hurtboxes = m.GetComponents<PolygonCollider2D>();
+        for (int i = 0; i < hurtboxes.Length; i++)
         {
-            hurtboxes = m.GetComponents<PolygonCollider2D>();
-            hurtboxes[0].enabled = true;
+            hurtboxes[i].enabled = anim.GetCurrentAnimatorStateInfo(0).IsName(states[i]);
         }
     }
 

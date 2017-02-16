@@ -18,8 +18,9 @@ public class master : MonoBehaviour {
 
         c = new Character(8f, 27.5f, 3, rb, anim, name, pc);
 
-        subSprites = Resources.LoadAll<Sprite>("Characters/"+name+"_Sprites"); ;
-        Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), GameObject.Find("player2").GetComponent<BoxCollider2D>());
+        //subSprites = Resources.LoadAll<Sprite>("Characters/"+name+"_Sprites");
+        Physics2D.IgnoreCollision(GetComponent<CircleCollider2D>(), GameObject.Find("player2").GetComponent<CircleCollider2D>());
+        Physics2D.IgnoreCollision(GetComponent<PolygonCollider2D>(), GameObject.Find("player2").GetComponent<PolygonCollider2D>());
 
         switch (name)
         {
@@ -55,7 +56,7 @@ public class master : MonoBehaviour {
 
     void LateUpdate()
     {
-        c.hurtboxUpdate(this);
+        c.hurtboxUpdate();
     }
 
     //private void LateUpdate()
