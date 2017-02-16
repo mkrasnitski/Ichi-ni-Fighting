@@ -4,20 +4,19 @@ using System.Text;
 using UnityEngine;
 
 public class Character : MonoBehaviour
-{
-    private float jumpspeed;
+{   private float jumpspeed;
     private float walkspeed;
     private float jumpMult = 1.5f;
     private int jumpsquat = 3;
     private bool canJump = true;
     private string player;
     private int orientation;
-    private bool landing;
+
+    private string[] states = {"idleR", "punchGroundR"};
+    private PolygonCollider2D[] hurtboxes = { };
     
     public static int framecounter = 0;
     private int count = 0;
-    private int kickcount = 0;
-    private bool punchCycle = false;
 
     private KeyCode up = KeyCode.W;
     private KeyCode down = KeyCode.S;
@@ -26,12 +25,12 @@ public class Character : MonoBehaviour
     private KeyCode punch = KeyCode.G;
     private KeyCode kick = KeyCode.H;
 
-    private Move punchGround = new Move(2, 4, 25, "punchGround");
-    private Move punchAir = new Move(2, 4, 20, "punchAir");
-    private Move punchSquat = new Move(2, 4, 15, "punchSquat");
-    private Move kickGround = new Move(2, 4, 35, "kickGround");
-    private Move kickAir = new Move(2, 4, 25, "kickAir");
-    private Move kickSquat = new Move(2, 4, 15, "kickSquat");
+    private Move punchGround = new Move(2, 4, 25);
+    private Move punchAir = new Move(2, 4, 20);
+    private Move punchSquat = new Move(2, 4, 15);
+    private Move kickGround = new Move(2, 4, 35);
+    private Move kickAir = new Move(2, 4, 25);
+    private Move kickSquat = new Move(2, 4, 15);
 
     Rigidbody2D rb;
     Animator anim;
@@ -44,9 +43,10 @@ public class Character : MonoBehaviour
         jumpsquat = 3;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
+        hurtboxes = gameObject.GetComponents<PolygonCollider2D>();
     }
 
-    public Character(float w, float j, int js, Rigidbody2D r, Animator a, string p)
+    public Character(float w, float j, int js, Rigidbody2D r, Animator a, string p, PolygonCollider2D[] h)
     {
         walkspeed = w;
         jumpspeed = j;
@@ -54,6 +54,7 @@ public class Character : MonoBehaviour
         rb = r;
         anim = a;
         player = p;
+        hurtboxes = h;
     }
 
     public Character(KeyCode[] k, Character c)
@@ -64,6 +65,7 @@ public class Character : MonoBehaviour
         rb = c.rb;
         anim = c.anim;
         player = c.player;
+        hurtboxes = c.hurtboxes;
         
         if (k.Length == 6)
         {
@@ -84,6 +86,15 @@ public class Character : MonoBehaviour
 
     public void pollInput()
     {
+        /*for(int i = 0; i < states.Length; i++)
+        {
+            hurtboxes[i].enabled = false;
+            if (anim.GetCurrentAnimatorStateInfo(0).IsName(states[i]))
+        /   {
+                hurtboxes[i].enabled = true;
+            }
+        }*/
+        //print(anim.GetCurrentAnimatorStateInfo(0).IsName("idleR"));
         if (canJump)
         {
             if (Input.GetKeyDown(up) && Input.GetKey(left))
@@ -113,7 +124,7 @@ public class Character : MonoBehaviour
         }
 
         double p = -Convert.ToDouble(player.Trim("player".ToCharArray()))+3;
-        if (GameObject.Find(player).transform.position.x < GameObject.Find("player" + p).transform.position.x)
+        if (GameObject.Find(player).transform.position.x <= GameObject.Find("player" + p).transform.position.x)
         {
             orientation = 0;
         }
@@ -145,7 +156,6 @@ public class Character : MonoBehaviour
             rb.velocity = new Vector2(0f, jumpspeed);
             anim.SetBool("jump", true);
         }
-
         anim.SetInteger("walk", orientation);
 
         if (canJump && !(anim.GetBool("punch") || anim.GetBool("kick")))
@@ -178,11 +188,8 @@ public class Character : MonoBehaviour
         //Single Jump only
         if (isLow(rb.velocity[1]))
         {
-            if (!(anim.GetBool("punch") || anim.GetBool("kick")))
-            {
-                canJump = true;
-                anim.SetBool("jump", false);
-            } 
+            canJump = true;
+            anim.SetBool("jump", false);
         }
     }
 
@@ -204,6 +211,7 @@ public class Character : MonoBehaviour
             else
             {
                 move = punchAir;
+                anim.SetBool("landing", false);
             }
             a = true;
             moveString = "punch";
@@ -222,6 +230,7 @@ public class Character : MonoBehaviour
             else
             {
                 move = kickAir;
+                anim.SetBool("landing", false);
             }
 
             a = true;
@@ -236,13 +245,8 @@ public class Character : MonoBehaviour
             if (framecounter - count >= move.Total)
             {
                 anim.SetBool(moveString, false);
+                anim.SetBool("landing", true);
             }
-            //if (move.Name == "punchAir" || move.Name == "kickAir")
-            //{
-            //    if (isLow(rb.velocity[1])){
-            //        anim.SetBool("jump", false);
-            //    }
-            //}
         }
 
         if (state == "punch")
@@ -252,6 +256,15 @@ public class Character : MonoBehaviour
         if (state == "kick")
         {
             anim.SetBool("kick", true);
+        }
+    }
+
+    public void hurtboxUpdate(master m)
+    {
+        if (player == "player1")
+        {
+            hurtboxes = m.GetComponents<PolygonCollider2D>();
+            hurtboxes[0].enabled = true;
         }
     }
 

@@ -10,15 +10,13 @@ public class Move : MonoBehaviour
     private int active;
     private int recovery;
     private int total;
-    private string name;
 
-    public Move(int s, int a, int r, string n)
+    public Move(int s, int a, int r)
     {
         startup = s;
         active = a;
         recovery = r;
         total = s + a + r;
-        name = n;
     }
 
     public int Startup
@@ -39,10 +37,5 @@ public class Move : MonoBehaviour
     public int Total
     {
         get { return recovery; }
-    }
-    
-    public string Name
-    {
-        get { return name; }
     }
 }

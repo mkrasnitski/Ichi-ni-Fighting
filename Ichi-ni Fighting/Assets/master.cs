@@ -14,31 +14,31 @@ public class master : MonoBehaviour {
     void Start () {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        c = new Character(8f, 27.5f, 3, rb, anim, name);
-        var pc = gameObject.GetComponents<PolygonCollider2D>();
-        foreach (PolygonCollider2D p in pc)
-        {
-            print(p.GetInstanceID());
-        }
+        PolygonCollider2D[] pc = gameObject.GetComponents<PolygonCollider2D>();
+
+        c = new Character(8f, 27.5f, 3, rb, anim, name, pc);
+
         subSprites = Resources.LoadAll<Sprite>("Characters/"+name+"_Sprites"); ;
         Physics2D.IgnoreCollision(GetComponent<BoxCollider2D>(), GameObject.Find("player2").GetComponent<BoxCollider2D>());
-        if(name == "player1")
+
+        switch (name)
         {
-            c = new Character(new KeyCode[] { KeyCode.W,
-                                              KeyCode.S,
-                                              KeyCode.A,
-                                              KeyCode.D,
-                                              KeyCode.G,
-                                              KeyCode.H }, c);
-        }
-        else if (name == "player2")
-        {
-            c = new Character(new KeyCode[] { KeyCode.UpArrow,
-                                              KeyCode.DownArrow,
-                                              KeyCode.LeftArrow,
-                                              KeyCode.RightArrow,
-                                              KeyCode.Keypad1,
-                                              KeyCode.Keypad2 }, c);
+            case "player1":
+                c = new Character(new KeyCode[] { KeyCode.W,
+                                                  KeyCode.S,
+                                                  KeyCode.A,
+                                                  KeyCode.D,
+                                                  KeyCode.G,
+                                                  KeyCode.H }, c);
+                break;
+            case "player2":
+                c = new Character(new KeyCode[] { KeyCode.UpArrow,
+                                                  KeyCode.DownArrow,
+                                                  KeyCode.LeftArrow,
+                                                  KeyCode.RightArrow,
+                                                  KeyCode.Keypad1,
+                                                  KeyCode.Keypad2 }, c);
+                break;
         }
     }
 
@@ -51,6 +51,11 @@ public class master : MonoBehaviour {
         c.move();
         c.attack();
         c.advanceFrame();
+    }
+
+    void LateUpdate()
+    {
+        c.hurtboxUpdate(this);
     }
 
     //private void LateUpdate()
