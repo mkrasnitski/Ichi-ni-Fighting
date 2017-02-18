@@ -10,36 +10,32 @@ public class master : MonoBehaviour {
     Rigidbody2D rb;
     Animator anim;
     Sprite[] subSprites;
+    string p1_name = "player1";
+    string p2_name = "player2";
 
-    void Start () {
+    void Start ()
+    {
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         PolygonCollider2D[] pc = gameObject.GetComponents<PolygonCollider2D>();
-
         c = new Character(8f, 27.5f, 3, rb, anim, name, pc);
 
-        //subSprites = Resources.LoadAll<Sprite>("Characters/"+name+"_Sprites");
         Physics2D.IgnoreCollision(GetComponent<CircleCollider2D>(), GameObject.Find("player2").GetComponent<CircleCollider2D>());
         Physics2D.IgnoreCollision(GetComponent<PolygonCollider2D>(), GameObject.Find("player2").GetComponent<PolygonCollider2D>());
+        Physics2D.IgnoreCollision(GetComponent<CircleCollider2D>(), GameObject.Find("player2").GetComponent<PolygonCollider2D>());
+        Physics2D.IgnoreCollision(GetComponent<PolygonCollider2D>(), GameObject.Find("player2").GetComponent<CircleCollider2D>());
 
-        switch (name)
+        if (name == p1_name)
         {
-            case "player1":
-                c = new Character(new KeyCode[] { KeyCode.W,
-                                                  KeyCode.S,
-                                                  KeyCode.A,
-                                                  KeyCode.D,
-                                                  KeyCode.G,
-                                                  KeyCode.H }, c);
-                break;
-            case "player2":
-                c = new Character(new KeyCode[] { KeyCode.UpArrow,
-                                                  KeyCode.DownArrow,
-                                                  KeyCode.LeftArrow,
-                                                  KeyCode.RightArrow,
-                                                  KeyCode.Keypad1,
-                                                  KeyCode.Keypad2 }, c);
-                break;
+            c = new Character(new KeyCode[] { KeyCode.W, KeyCode.S,
+                                              KeyCode.A, KeyCode.D,
+                                              KeyCode.G, KeyCode.H }, c);
+        }
+        else if (name == p2_name)
+        {
+            c = new Character(new KeyCode[] { KeyCode.UpArrow,   KeyCode.DownArrow,
+                                              KeyCode.LeftArrow, KeyCode.RightArrow,
+                                              KeyCode.Keypad1,   KeyCode.Keypad2 }, c);
         }
     }
 
@@ -48,7 +44,8 @@ public class master : MonoBehaviour {
         c.pollInput();
     }
 
-    void FixedUpdate () {
+    void FixedUpdate ()
+    {
         c.move();
         c.attack();
         c.advanceFrame();
@@ -58,18 +55,4 @@ public class master : MonoBehaviour {
     {
         c.hurtboxUpdate();
     }
-
-    //private void LateUpdate()
-    //{
-    //    foreach (SpriteRenderer r in GetComponentsInChildren<SpriteRenderer>())
-    //    {
-    //        var newSprite = Array.Find(subSprites, item => item.name == r.sprite.name);
-    //        print(newSprite);
-    //        if (newSprite)
-    //        {
-    //            r.sprite = newSprite;
-    //            print("asdf");
-    //        }
-    //    }
-    //}
 }

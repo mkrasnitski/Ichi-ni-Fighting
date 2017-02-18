@@ -9,6 +9,7 @@ public class Move : MonoBehaviour
     private int startup;
     private int active;
     private int recovery;
+    private int landingLag;
     private int total;
 
     public Move(int s, int a, int r)
@@ -32,6 +33,11 @@ public class Move : MonoBehaviour
     public int Recovery
     {
         get { return recovery; }
+    }
+
+    public int LandingLag
+    {
+        get { return landingLag; }
     }
 
     public int Total

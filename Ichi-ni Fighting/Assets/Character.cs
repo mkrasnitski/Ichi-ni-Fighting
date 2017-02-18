@@ -4,20 +4,27 @@ using System.Text;
 using UnityEngine;
 
 public class Character : MonoBehaviour
-{   private float jumpspeed;
+{
+    //Movement Vars
+    private float jumpspeed;
     private float walkspeed;
     private float jumpMult = 1.5f;
     private int jumpsquat = 3;
     private bool canJump = true;
     private string player;
     private int orientation;
+    private string state;
 
-    private string[] states = {"idleR", "punchGroundR"};
+    //Attack Vars
+    private string[] states = {"idleR", "idleL", "walkR", "walkL", "jumpR", "jumpL", "punchGroundR", "kickGroundR", "squatR"};
     private PolygonCollider2D[] hurtboxes = { };
+    private BoxCollider2D[] hitboxes = { };
     
-    public static int framecounter = 0;
+    //Framecounters
+    public int framecounter = 0;
     private int count = 0;
 
+    //Controls
     private KeyCode up = KeyCode.W;
     private KeyCode down = KeyCode.S;
     private KeyCode left = KeyCode.A;
@@ -25,6 +32,7 @@ public class Character : MonoBehaviour
     private KeyCode punch = KeyCode.G;
     private KeyCode kick = KeyCode.H;
 
+    //Moves
     private Move punchGround = new Move(2, 4, 25);
     private Move punchAir = new Move(2, 4, 20);
     private Move punchSquat = new Move(2, 4, 15);
@@ -32,9 +40,9 @@ public class Character : MonoBehaviour
     private Move kickAir = new Move(2, 4, 25);
     private Move kickSquat = new Move(2, 4, 15);
 
+    //General
     Rigidbody2D rb;
     Animator anim;
-    public string state;
 
     public Character()
     {
@@ -86,15 +94,6 @@ public class Character : MonoBehaviour
 
     public void pollInput()
     {
-        /*for(int i = 0; i < states.Length; i++)
-        {
-            hurtboxes[i].enabled = false;
-            if (anim.GetCurrentAnimatorStateInfo(0).IsName(states[i]))
-        /   {
-                hurtboxes[i].enabled = true;
-            }
-        }*/
-        //print(anim.GetCurrentAnimatorStateInfo(0).IsName("idleR"));
         if (canJump)
         {
             if (Input.GetKeyDown(up) && Input.GetKey(left))
@@ -242,6 +241,7 @@ public class Character : MonoBehaviour
         }
         else
         {
+            print(framecounter - count);
             if (framecounter - count >= move.Total)
             {
                 anim.SetBool(moveString, false);
@@ -261,7 +261,6 @@ public class Character : MonoBehaviour
 
     public void hurtboxUpdate()
     {
-        //hurtboxes = m.GetComponents<PolygonCollider2D>();
         for (int i = 0; i < hurtboxes.Length; i++)
         {
             hurtboxes[i].enabled = anim.GetCurrentAnimatorStateInfo(0).IsName(states[i]);
