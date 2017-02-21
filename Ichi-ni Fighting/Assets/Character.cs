@@ -16,7 +16,16 @@ public class Character : MonoBehaviour
     private string state;
 
     //Attack Vars
-    private string[] states = {"idleR", "idleL", "walkR", "walkL", "jumpR", "jumpL", "punchGroundR", "kickGroundR", "squatR"};
+    private string[] states = {"idleR", "idleL",
+                               "walkR", "walkL",
+                               "jumpR", "jumpL",
+                               "squatR", "squatL",
+                               "punchGroundR", "punchGroundL",
+                               "punchAirR", "punchAirL",
+                               "punchSquatR", "punchSquatL",
+                               "kickGroundR", "kickGroundL",
+                               "kickAirR", "kickAirL",
+                               "kickSquatR", "kickSquatL"};
     private PolygonCollider2D[] hurtboxes = { };
     private BoxCollider2D[] hitboxes = { };
     
@@ -33,12 +42,12 @@ public class Character : MonoBehaviour
     private KeyCode kick = KeyCode.H;
 
     //Moves
-    private Move punchGround = new Move(2, 4, 25);
-    private Move punchAir = new Move(2, 4, 20);
-    private Move punchSquat = new Move(2, 4, 15);
-    private Move kickGround = new Move(2, 4, 35);
-    private Move kickAir = new Move(2, 4, 25);
-    private Move kickSquat = new Move(2, 4, 15);
+    private Move punchGround = new Move(2, 4, 15);
+    private Move punchAir = new Move(2, 4, 10);
+    private Move punchSquat = new Move(2, 4, 5);
+    private Move kickGround = new Move(2, 4, 20);
+    private Move kickAir = new Move(2, 4, 15);
+    private Move kickSquat = new Move(2, 4, 10);
 
     //General
     Rigidbody2D rb;

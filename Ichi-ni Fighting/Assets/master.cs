@@ -14,16 +14,18 @@ public class master : MonoBehaviour {
     string p2_name = "player2";
 
     void Start ()
-    {
-        rb = GetComponent<Rigidbody2D>();
+    { 
+        rb = GetComponent<Rigidbody2D>();   
         anim = GetComponent<Animator>();
         PolygonCollider2D[] pc = gameObject.GetComponents<PolygonCollider2D>();
         c = new Character(8f, 27.5f, 3, rb, anim, name, pc);
+        //GameObject.Find("Main Camera").GetComponent<Camera>().pixelRect = new Rect(0, 0, 500, 1028);
 
         Physics2D.IgnoreCollision(GetComponent<CircleCollider2D>(), GameObject.Find("player2").GetComponent<CircleCollider2D>());
         Physics2D.IgnoreCollision(GetComponent<PolygonCollider2D>(), GameObject.Find("player2").GetComponent<PolygonCollider2D>());
         Physics2D.IgnoreCollision(GetComponent<CircleCollider2D>(), GameObject.Find("player2").GetComponent<PolygonCollider2D>());
         Physics2D.IgnoreCollision(GetComponent<PolygonCollider2D>(), GameObject.Find("player2").GetComponent<CircleCollider2D>());
+        Physics2D.IgnoreCollision(GetComponent<PolygonCollider2D>(), GameObject.Find("floor").GetComponent<BoxCollider2D>());
 
         if (name == p1_name)
         {
