@@ -17,8 +17,9 @@ public class master : MonoBehaviour {
     { 
         rb = GetComponent<Rigidbody2D>();   
         anim = GetComponent<Animator>();
-        PolygonCollider2D[] pc = gameObject.GetComponents<PolygonCollider2D>();
-        c = new Character(8f, 27.5f, 3, rb, anim, name, pc);
+        PolygonCollider2D[] pc = GetComponents<PolygonCollider2D>();
+        BoxCollider2D[] bc = GetComponents<BoxCollider2D>();
+        c = new Character(8f, 27.5f, 3, rb, anim, name, pc, bc);
         //GameObject.Find("Main Camera").GetComponent<Camera>().pixelRect = new Rect(0, 0, 500, 1028);
 
         Physics2D.IgnoreCollision(GetComponent<CircleCollider2D>(), GameObject.Find("player2").GetComponent<CircleCollider2D>());
@@ -55,6 +56,6 @@ public class master : MonoBehaviour {
 
     void LateUpdate()
     {
-        c.hurtboxUpdate();
+        c.boxUpdate();
     }
 }

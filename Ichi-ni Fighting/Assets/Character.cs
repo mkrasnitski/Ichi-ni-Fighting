@@ -26,6 +26,7 @@ public class Character : MonoBehaviour
                                "kickGroundR", "kickGroundL",
                                "kickAirR", "kickAirL",
                                "kickSquatR", "kickSquatL"};
+
     private PolygonCollider2D[] hurtboxes = { };
     private BoxCollider2D[] hitboxes = { };
     
@@ -60,10 +61,11 @@ public class Character : MonoBehaviour
         jumpsquat = 3;
         rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
-        hurtboxes = gameObject.GetComponents<PolygonCollider2D>();
+        hurtboxes = GetComponents<PolygonCollider2D>();
+        hitboxes = GetComponents<BoxCollider2D>();
     }
 
-    public Character(float w, float j, int js, Rigidbody2D r, Animator a, string p, PolygonCollider2D[] h)
+    public Character(float w, float j, int js, Rigidbody2D r, Animator a, string p, PolygonCollider2D[] hurt, BoxCollider2D[] hit)
     {
         walkspeed = w;
         jumpspeed = j;
@@ -71,7 +73,9 @@ public class Character : MonoBehaviour
         rb = r;
         anim = a;
         player = p;
-        hurtboxes = h;
+        hurtboxes = hurt;
+        hitboxes = hit;
+
     }
 
     public Character(KeyCode[] k, Character c)
@@ -83,6 +87,7 @@ public class Character : MonoBehaviour
         anim = c.anim;
         player = c.player;
         hurtboxes = c.hurtboxes;
+        hitboxes = c.hitboxes;
         
         if (k.Length == 6)
         {
@@ -250,7 +255,6 @@ public class Character : MonoBehaviour
         }
         else
         {
-            print(framecounter - count);
             if (framecounter - count >= move.Total)
             {
                 anim.SetBool(moveString, false);
@@ -268,11 +272,15 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void hurtboxUpdate()
+    public void boxUpdate()
     {
         for (int i = 0; i < hurtboxes.Length; i++)
         {
             hurtboxes[i].enabled = anim.GetCurrentAnimatorStateInfo(0).IsName(states[i]);
+        }
+        for(int i = 0; i < hitboxes.Length; i++)
+        {   
+            hitboxes[i].enabled = anim.GetCurrentAnimatorStateInfo(0).IsName(states[i + 8]);
         }
     }
 
