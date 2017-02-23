@@ -169,6 +169,7 @@ public class Character : MonoBehaviour
             rb.velocity = new Vector2(0f, jumpspeed);
             anim.SetBool("jump", true);
         }
+
         anim.SetInteger("walk", orientation);
 
         if (canJump && !(anim.GetBool("punch") || anim.GetBool("kick")))
@@ -179,9 +180,11 @@ public class Character : MonoBehaviour
             if (Input.GetKey(down))
             {
                 anim.SetInteger("walk", 4 + anim.GetInteger("walk") % 2);
+                anim.SetBool("squat", true);
             }
             else
             {
+                anim.SetBool("squat", false);
                 //Walk Left
                 if (Input.GetKey(left))
                 {
