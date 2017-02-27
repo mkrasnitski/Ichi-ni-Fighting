@@ -29,9 +29,10 @@ public class Character : MonoBehaviour
 
     private PolygonCollider2D[] hurtboxes = { };
     private BoxCollider2D[] hitboxes = { };
+    private bool hit;
     
     //Framecounters
-    public int framecounter = 0;
+    private int framecounter = 0;
     private int count = 0;
 
     //Controls
@@ -43,12 +44,13 @@ public class Character : MonoBehaviour
     private KeyCode kick = KeyCode.H;
 
     //Moves
-    private Move punchGround = new Move(2, 4, 15);
-    private Move punchAir = new Move(2, 4, 10);
-    private Move punchSquat = new Move(2, 4, 5);
-    private Move kickGround = new Move(2, 4, 20);
-    private Move kickAir = new Move(2, 4, 15);
-    private Move kickSquat = new Move(2, 4, 10);
+    private Move punchGround = new Move(2, 4, 15, 10);
+    private Move punchAir = new Move(2, 4, 10, 11);
+    private Move punchSquat = new Move(2, 4, 5, 12);
+    private Move kickGround = new Move(2, 4, 20, 13);
+    private Move kickAir = new Move(2, 4, 15, 14);
+    private Move kickSquat = new Move(2, 4, 10, 15);
+    private Move currentMove;
 
     //General
     Rigidbody2D rb;
@@ -65,7 +67,7 @@ public class Character : MonoBehaviour
         hitboxes = GetComponents<BoxCollider2D>();
     }
 
-    public Character(float w, float j, int js, Rigidbody2D r, Animator a, string p, PolygonCollider2D[] hurt, BoxCollider2D[] hit)
+    public Character(float w, float j, int js, Rigidbody2D r, Animator a, string p, PolygonCollider2D[] hurtB, BoxCollider2D[] hitB)
     {
         walkspeed = w;
         jumpspeed = j;
@@ -73,8 +75,8 @@ public class Character : MonoBehaviour
         rb = r;
         anim = a;
         player = p;
-        hurtboxes = hurt;
-        hitboxes = hit;
+        hurtboxes = hurtB;
+        hitboxes = hitB;
 
     }
 
@@ -136,7 +138,7 @@ public class Character : MonoBehaviour
             state = "kick";
         }
 
-        double p = -Convert.ToDouble(player.Trim("player".ToCharArray()))+3;
+        double p = 3 - Convert.ToDouble(player.Trim("player".ToCharArray()));
         if (GameObject.Find(player).transform.position.x <= GameObject.Find("player" + p).transform.position.x)
         {
             orientation = 0;
@@ -211,22 +213,21 @@ public class Character : MonoBehaviour
 
     public void attack()
     {
-        Move move = null;
         string moveString = "";
         bool a = anim.GetBool("punch") && anim.GetBool("kick");
         if (anim.GetBool("punch"))
         {
             if (canJump)
             {
-                move = punchGround;
+                currentMove = punchGround;
             }
             else if (state == "squat")
             {
-                move = punchSquat;
+                currentMove = punchSquat;
             }
             else
             {
-                move = punchAir;
+                currentMove = punchAir;
                 anim.SetBool("landing", false);
             }
             a = true;
@@ -237,15 +238,15 @@ public class Character : MonoBehaviour
         {
             if (canJump)
             {
-                move = kickGround;
+                currentMove = kickGround;
             }
             else if (state == "squat")
             {
-                move = kickSquat;
+                currentMove = kickSquat;
             }
             else
             {
-                move = kickAir;
+                currentMove = kickAir;
                 anim.SetBool("landing", false);
             }
 
@@ -254,11 +255,13 @@ public class Character : MonoBehaviour
         }
 
         if (!a) {
+            print(hit);
             count = framecounter;
+            currentMove = null;
         }
         else
         {
-            if (framecounter - count >= move.Total)
+            if (framecounter - count >= currentMove.Total)
             {
                 anim.SetBool(moveString, false);
                 anim.SetBool("landing", true);
@@ -275,6 +278,11 @@ public class Character : MonoBehaviour
         }
     }
 
+    public void doDamage()
+    {
+        print(currentMove.Damage);
+    }
+
     public void boxUpdate()
     {
         for (int i = 0; i < hurtboxes.Length; i++)
@@ -285,6 +293,11 @@ public class Character : MonoBehaviour
         {   
             hitboxes[i].enabled = anim.GetCurrentAnimatorStateInfo(0).IsName(states[i + 8]);
         }
+    }
+
+    public void Hit()
+    {
+        hit = true;
     }
 
     public void advanceFrame()

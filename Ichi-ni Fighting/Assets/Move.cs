@@ -10,14 +10,16 @@ public class Move : MonoBehaviour
     private int active;
     private int recovery;
     private int landingLag;
+    private int damage;
     private int total;
 
-    public Move(int s, int a, int r)
+    public Move(int s, int a, int r, int d)
     {
         startup = s;
         active = a;
         recovery = r;
         total = s + a + r;
+        damage = d;
     }
 
     public int Startup
@@ -38,6 +40,11 @@ public class Move : MonoBehaviour
     public int LandingLag
     {
         get { return landingLag; }
+    }
+
+    public int Damage
+    {
+        get { return damage; }
     }
 
     public int Total
