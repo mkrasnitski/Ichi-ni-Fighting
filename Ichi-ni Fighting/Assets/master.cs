@@ -9,9 +9,11 @@ public class master : MonoBehaviour {
     Character c;
     Rigidbody2D rb;
     Animator anim;
-    Sprite[] subSprites;
     string p1_name = "player1";
     string p2_name = "player2";
+    bool hit = false;
+
+    public float currentDamage;
 
     void Start ()
     { 
@@ -20,7 +22,6 @@ public class master : MonoBehaviour {
         PolygonCollider2D[] pc = transform.Find("Hurt").GetComponents<PolygonCollider2D>();
         BoxCollider2D[] bc = transform.Find("Hit").GetComponents<BoxCollider2D>();
         c = new Character(8f, 27.5f, 3, rb, anim, name, pc, bc);
-        //GameObject.Find("Main Camera").GetComponent<Camera>().pixelRect = new Rect(0, 0, 500, 1028);
 
         if (name == p1_name)
         {
@@ -53,21 +54,26 @@ public class master : MonoBehaviour {
 
     void FixedUpdate ()
     {
+        currentDamage = c.attack();
         c.move();
-        c.attack();
+        if (hit)
+        {
+            c.doDamage();
+            hit = false;
+        }
         c.advanceFrame();
     }
 
     void LateUpdate()
     {
         c.boxUpdate();
-    }
+    }    
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision is BoxCollider2D)
-        { 
-            c.Hit();
+        if (collision is BoxCollider2D && !hit)
+        {
+            hit = true;
         }
     }
 }

@@ -13,12 +13,22 @@ public class Move : MonoBehaviour
     private int damage;
     private int total;
 
+    public Move()
+    {
+        startup = 0;
+        active = 0;
+        recovery = 0;
+        landingLag = 0;
+        damage = 0;
+        total = 0;
+    }
+
     public Move(int s, int a, int r, int d)
     {
         startup = s;
         active = a;
         recovery = r;
-        total = s + a + r;
+        total = startup + active + recovery;
         damage = d;
     }
 

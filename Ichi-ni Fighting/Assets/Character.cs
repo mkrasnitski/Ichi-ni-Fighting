@@ -12,6 +12,7 @@ public class Character : MonoBehaviour
     private int jumpsquat = 3;
     private bool canJump = true;
     private string player;
+    private string other_player;
     private int orientation;
     private string state;
 
@@ -29,7 +30,7 @@ public class Character : MonoBehaviour
 
     private PolygonCollider2D[] hurtboxes = { };
     private BoxCollider2D[] hitboxes = { };
-    private bool hit;
+    private float health = 100.0f;
     
     //Framecounters
     private int framecounter = 0;
@@ -50,7 +51,7 @@ public class Character : MonoBehaviour
     private Move kickGround = new Move(2, 4, 20, 13);
     private Move kickAir = new Move(2, 4, 15, 14);
     private Move kickSquat = new Move(2, 4, 10, 15);
-    private Move currentMove;
+    private Move currentMove = new Move();
 
     //General
     Rigidbody2D rb;
@@ -75,6 +76,7 @@ public class Character : MonoBehaviour
         rb = r;
         anim = a;
         player = p;
+        other_player = "player" + (3 - Convert.ToDouble(player.Trim("player".ToCharArray())));
         hurtboxes = hurtB;
         hitboxes = hitB;
 
@@ -88,6 +90,7 @@ public class Character : MonoBehaviour
         rb = c.rb;
         anim = c.anim;
         player = c.player;
+        other_player = "player" + (3 - Convert.ToDouble(player.Trim("player".ToCharArray())));
         hurtboxes = c.hurtboxes;
         hitboxes = c.hitboxes;
         
@@ -128,7 +131,6 @@ public class Character : MonoBehaviour
                 canJump = false;
             }
         }
-        
         if (Input.GetKeyDown(punch))
         {
             state = "punch";
@@ -137,9 +139,8 @@ public class Character : MonoBehaviour
         {
             state = "kick";
         }
-
-        double p = 3 - Convert.ToDouble(player.Trim("player".ToCharArray()));
-        if (GameObject.Find(player).transform.position.x <= GameObject.Find("player" + p).transform.position.x)
+        
+        if (GameObject.Find(player).transform.position.x <= GameObject.Find(other_player).transform.position.x)
         {
             orientation = 0;
         }
@@ -171,6 +172,8 @@ public class Character : MonoBehaviour
             rb.velocity = new Vector2(0f, jumpspeed);
             anim.SetBool("jump", true);
         }
+
+        state = "";
 
         anim.SetInteger("walk", orientation);
 
@@ -211,62 +214,9 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void attack()
+    public float attack()
     {
         string moveString = "";
-        bool a = anim.GetBool("punch") && anim.GetBool("kick");
-        if (anim.GetBool("punch"))
-        {
-            if (canJump)
-            {
-                currentMove = punchGround;
-            }
-            else if (state == "squat")
-            {
-                currentMove = punchSquat;
-            }
-            else
-            {
-                currentMove = punchAir;
-                anim.SetBool("landing", false);
-            }
-            a = true;
-            moveString = "punch";
-
-        }
-        if (anim.GetBool("kick"))
-        {
-            if (canJump)
-            {
-                currentMove = kickGround;
-            }
-            else if (state == "squat")
-            {
-                currentMove = kickSquat;
-            }
-            else
-            {
-                currentMove = kickAir;
-                anim.SetBool("landing", false);
-            }
-
-            a = true;
-            moveString = "kick";
-        }
-
-        if (!a) {
-            print(hit);
-            count = framecounter;
-            currentMove = null;
-        }
-        else
-        {
-            if (framecounter - count >= currentMove.Total)
-            {
-                anim.SetBool(moveString, false);
-                anim.SetBool("landing", true);
-            }
-        }
 
         if (state == "punch")
         {
@@ -276,11 +226,64 @@ public class Character : MonoBehaviour
         {
             anim.SetBool("kick", true);
         }
+
+        if (anim.GetBool("punch"))
+        {
+            if (anim.GetBool("squat"))
+            {
+                currentMove = punchSquat;
+            }
+            else if (canJump)
+            {
+                currentMove = punchGround;
+            }
+            else
+            {
+                currentMove = punchAir;
+                anim.SetBool("landing", false);
+            }
+            moveString = "punch";
+        }
+        if (anim.GetBool("kick"))
+        {
+            if (anim.GetBool("squat"))
+            {
+                currentMove = kickSquat;
+            }
+            else if (canJump)
+            {
+                currentMove = kickGround;
+            }
+            else
+            {
+                currentMove = kickAir;
+                anim.SetBool("landing", false);
+            }
+            moveString = "kick";
+        }
+
+        if (!anim.GetBool("punch") && !anim.GetBool("kick")) {
+            count = framecounter;
+            currentMove = new Move();
+        }
+        else
+        {
+            if (framecounter - count >= currentMove.Total)
+            {
+                anim.SetBool(moveString, false);
+                anim.SetBool("landing", true);
+                state = "";
+            }
+        }
+        return currentMove.Damage;
     }
 
     public void doDamage()
     {
-        print(currentMove.Damage);
+        float hitDamage = GameObject.Find(other_player).GetComponent<master>().currentDamage;
+        health -= hitDamage;
+        if (health < 0) health = 0;
+        GameObject.Find("healthBar" + player.Trim("player".ToCharArray())).transform.localScale = new Vector3(health/100, 1,1);
     }
 
     public void boxUpdate()
@@ -295,14 +298,8 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void Hit()
-    {
-        hit = true;
-    }
-
     public void advanceFrame()
     {
         framecounter++;
-        state = "";
     }
 }
