@@ -77,6 +77,7 @@
   <ItemGroup>
     <Compile Include="Assets\Character.cs" />
     <Compile Include="Assets\Move.cs" />
+    <Compile Include="Assets\init.cs" />
     <Compile Include="Assets\master.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

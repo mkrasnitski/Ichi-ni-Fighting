@@ -12,9 +12,11 @@ public class Character : MonoBehaviour
     private int jumpsquat = 3;
     private bool canJump = true;
     private string player;
+    private int player_num;
     private string other_player;
     private int orientation;
     private string state;
+    private float camWidth;
 
     //Attack Vars
     private string[] states = {"idleR", "idleL",
@@ -30,7 +32,11 @@ public class Character : MonoBehaviour
 
     private PolygonCollider2D[] hurtboxes = { };
     private BoxCollider2D[] hitboxes = { };
+    private bool hit = false;
+    private bool moveHasHit = false;
     private float health = 100.0f;
+    private float healthDrain = 2.5f;
+    private GameObject healthBar;
     
     //Framecounters
     private int framecounter = 0;
@@ -76,10 +82,11 @@ public class Character : MonoBehaviour
         rb = r;
         anim = a;
         player = p;
-        other_player = "player" + (3 - Convert.ToDouble(player.Trim("player".ToCharArray())));
+        player_num = Convert.ToInt32(player.Trim("player".ToCharArray()));
+        other_player = "player" + (3 - player_num);
         hurtboxes = hurtB;
         hitboxes = hitB;
-
+        healthBar = GameObject.Find("healthBar" + player_num);
     }
 
     public Character(KeyCode[] k, Character c)
@@ -90,9 +97,11 @@ public class Character : MonoBehaviour
         rb = c.rb;
         anim = c.anim;
         player = c.player;
-        other_player = "player" + (3 - Convert.ToDouble(player.Trim("player".ToCharArray())));
+        player_num = c.player_num;
+        other_player = c.other_player;
         hurtboxes = c.hurtboxes;
         hitboxes = c.hitboxes;
+        healthBar = c.healthBar;
         
         if (k.Length == 6)
         {
@@ -109,6 +118,12 @@ public class Character : MonoBehaviour
     {
         float threshold = 0.005f;
         return Mathf.Abs(f) <= threshold;
+    }
+
+    private bool isOnEdge()
+    {
+
+        return false;
     }
 
     public void pollInput()
@@ -265,6 +280,7 @@ public class Character : MonoBehaviour
         if (!anim.GetBool("punch") && !anim.GetBool("kick")) {
             count = framecounter;
             currentMove = new Move();
+            moveHasHit = false;
         }
         else
         {
@@ -280,10 +296,25 @@ public class Character : MonoBehaviour
 
     public void doDamage()
     {
-        float hitDamage = GameObject.Find(other_player).GetComponent<master>().currentDamage;
-        health -= hitDamage;
-        if (health < 0) health = 0;
-        GameObject.Find("healthBar" + player.Trim("player".ToCharArray())).transform.localScale = new Vector3(health/100, 1,1);
+        if (hit)
+        {
+            float hitDamage = GameObject.Find(other_player).GetComponent<master>().currentDamage;
+            health -= hitDamage;
+            if (health < 0) health = 0;
+            hit = false;
+        }
+        animateHealthBar(healthBar, health / 100);
+    }
+
+    private void animateHealthBar(GameObject h, float size)
+    {
+        float h_size = h.transform.localScale.x;
+        if(h_size > size)
+        {
+            h_size -= 0.01f * healthDrain;
+            if (h_size < size) h_size = size;
+            h.transform.localScale = new Vector3(h_size, 1, 1);
+        }
     }
 
     public void boxUpdate()
@@ -298,8 +329,15 @@ public class Character : MonoBehaviour
         }
     }
 
+    public void ishit()
+    {
+        hit = true;
+        moveHasHit = true;
+    }
+
     public void advanceFrame()
     {
         framecounter++;
+        state = "";
     }
 }

@@ -12,6 +12,7 @@ public class master : MonoBehaviour {
     string p1_name = "player1";
     string p2_name = "player2";
     bool hit = false;
+    float camWidth;
 
     public float currentDamage;
 
@@ -19,6 +20,7 @@ public class master : MonoBehaviour {
     { 
         rb = GetComponent<Rigidbody2D>();   
         anim = GetComponent<Animator>();
+        camWidth = 2f * Camera.main.orthographicSize * Camera.main.aspect;
         PolygonCollider2D[] pc = transform.Find("Hurt").GetComponents<PolygonCollider2D>();
         BoxCollider2D[] bc = transform.Find("Hit").GetComponents<BoxCollider2D>();
         c = new Character(8f, 27.5f, 3, rb, anim, name, pc, bc);
@@ -55,12 +57,9 @@ public class master : MonoBehaviour {
     void FixedUpdate ()
     {
         currentDamage = c.attack();
+        ClampMovement();
         c.move();
-        if (hit)
-        {
-            c.doDamage();
-            hit = false;
-        }
+        c.doDamage();
         c.advanceFrame();
     }
 
@@ -69,11 +68,17 @@ public class master : MonoBehaviour {
         c.boxUpdate();
     }    
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision is BoxCollider2D && !hit)
         {
-            hit = true;
+            c.ishit();
         }
+    }
+
+    void ClampMovement()
+    {
+        float limit = camWidth / 2 - 1;
+        GetComponent<Transform>().position = new Vector3(Mathf.Clamp(transform.position.x, -limit, limit), transform.position.y, transform.position.z);
     }
 }
