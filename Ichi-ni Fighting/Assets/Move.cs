@@ -59,6 +59,6 @@ public class Move : MonoBehaviour
 
     public int Total
     {
-        get { return recovery; }
+        get { return total; }
     }
 }
