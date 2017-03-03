@@ -11,16 +11,17 @@ public class master : MonoBehaviour {
     Animator anim;
     string p1_name = "player1";
     string p2_name = "player2";
-    bool hit = false;
     float camWidth;
 
     public float currentDamage;
+    public bool canHit;
 
     void Start ()
     { 
         rb = GetComponent<Rigidbody2D>();   
         anim = GetComponent<Animator>();
         camWidth = 2f * Camera.main.orthographicSize * Camera.main.aspect;
+        canHit = true;
         PolygonCollider2D[] pc = transform.Find("Hurt").GetComponents<PolygonCollider2D>();
         BoxCollider2D[] bc = transform.Find("Hit").GetComponents<BoxCollider2D>();
         c = new Character(8f, 27.5f, 3, rb, anim, name, pc, bc);
@@ -70,9 +71,10 @@ public class master : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision is BoxCollider2D && !hit)
+        if (collision is BoxCollider2D)
         {
             c.ishit();
+            canHit = false;
         }
     }
 

@@ -33,12 +33,13 @@ public class Character : MonoBehaviour
     private PolygonCollider2D[] hurtboxes = { };
     private BoxCollider2D[] hitboxes = { };
     private bool hit = false;
-    private bool moveHasHit = false;
+    private bool moveCanHit = true;
     private float health = 100.0f;
     private float healthDrain = 2.5f;
     private GameObject healthBar;
-    
+
     //Framecounters
+    private int[] framecounters = new int[10];
     private int framecounter = 0;
     private int count = 0;
 
@@ -229,12 +230,17 @@ public class Character : MonoBehaviour
         }
     }
 
+    public void waitFrames(int frames)
+    {
+
+    }
+
     public float attack()
     {
         string moveString = "";
 
         if (state == "punch")
-        {
+        { 
             anim.SetBool("punch", true);
         }
         if (state == "kick")
@@ -280,7 +286,6 @@ public class Character : MonoBehaviour
         if (!anim.GetBool("punch") && !anim.GetBool("kick")) {
             count = framecounter;
             currentMove = new Move();
-            moveHasHit = false;
         }
         else
         {
@@ -289,6 +294,7 @@ public class Character : MonoBehaviour
                 anim.SetBool(moveString, false);
                 anim.SetBool("landing", true);
                 state = "";
+                GameObject.Find(player).GetComponent<master>().canHit = true;
             }
         }
         return currentMove.Damage;
@@ -302,6 +308,7 @@ public class Character : MonoBehaviour
             health -= hitDamage;
             if (health < 0) health = 0;
             hit = false;
+            GameObject.Find(other_player).GetComponent<master>().canHit = false;
         }
         animateHealthBar(healthBar, health / 100);
     }
@@ -331,8 +338,10 @@ public class Character : MonoBehaviour
 
     public void ishit()
     {
-        hit = true;
-        moveHasHit = true;
+        if (GameObject.Find(other_player).GetComponent<master>().canHit)
+        {
+            hit = true;
+        }
     }
 
     public void advanceFrame()
