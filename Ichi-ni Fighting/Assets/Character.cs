@@ -19,21 +19,21 @@ public class Character : MonoBehaviour
     private float camWidth;
 
     //Attack Vars
-    private string[] states = {"idleR", "idleL",
-                               "walkR", "walkL",
-                               "jumpR", "jumpL",
-                               "squatR", "squatL",
-                               "punchGroundR", "punchGroundL",
-                               "punchAirR", "punchAirL",
-                               "punchSquatR", "punchSquatL",
-                               "kickGroundR", "kickGroundL",
-                               "kickAirR", "kickAirL",
-                               "kickSquatR", "kickSquatL"};
+    private static string[] states = {"idleR", "idleL",
+                                      "walkR", "walkL",
+                                      "jumpR", "jumpL",
+                                      "squatR", "squatL",
+                                      "punchGroundR", "punchGroundL",
+                                      "punchAirR", "punchAirL",
+                                      "punchSquatR", "punchSquatL",
+                                      "kickGroundR", "kickGroundL",
+                                      "kickAirR", "kickAirL",
+                                      "kickSquatR", "kickSquatL"};
 
     private PolygonCollider2D[] hurtboxes = { };
     private BoxCollider2D[] hitboxes = { };
     private bool hit = false;
-    private bool moveCanHit = true;
+    private string moveString = "";
     private float health = 100.0f;
     private float healthDrain = 2.5f;
     private GameObject healthBar;
@@ -52,12 +52,14 @@ public class Character : MonoBehaviour
     private KeyCode kick = KeyCode.H;
 
     //Moves
-    private Move punchGround = new Move(2, 4, 15, 10);
-    private Move punchAir = new Move(2, 4, 10, 11);
-    private Move punchSquat = new Move(2, 4, 5, 12);
-    private Move kickGround = new Move(2, 4, 20, 13);
-    private Move kickAir = new Move(2, 4, 15, 14);
-    private Move kickSquat = new Move(2, 4, 10, 15);
+    private static Move punchGround = new Move(2, 4, 5, 10);
+    private static Move punchAir = new Move(2, 4, 10, 11);
+    private static Move punchSquat = new Move(2, 4, 5, 12);
+    private static Move kickGround = new Move(2, 4, 13, 13);
+    private static Move kickAir = new Move(2, 4, 15, 14);
+    private static Move kickSquat = new Move(2, 4, 10, 15);
+    private static string[] attackTypes = { "punch", "kick" };
+    private static Move[] moves = { punchGround, punchAir, punchSquat, kickGround, kickAir, kickSquat };
     private Move currentMove = new Move();
 
     //General
@@ -119,12 +121,6 @@ public class Character : MonoBehaviour
     {
         float threshold = 0.005f;
         return Mathf.Abs(f) <= threshold;
-    }
-
-    private bool isOnEdge()
-    {
-
-        return false;
     }
 
     public void pollInput()
@@ -237,65 +233,35 @@ public class Character : MonoBehaviour
 
     public float attack()
     {
-        string moveString = "";
-
-        if (state == "punch")
-        { 
-            anim.SetBool("punch", true);
-        }
-        if (state == "kick")
+        if (state == "punch" || state == "kick")
         {
-            anim.SetBool("kick", true);
-        }
+            anim.SetBool(state, true);
+            if (moveString == "")
+            {
+                //Punches first half of move list, kick second half; 6 moves total
+                int attacktype = 3 * Array.IndexOf(attackTypes, state);
 
-        if (anim.GetBool("punch"))
-        {
-            if (anim.GetBool("squat"))
-            {
-                currentMove = punchSquat;
+                //Squat
+                if (anim.GetBool("squat")) currentMove = moves[attacktype + 2];
+                //Grounded
+                else if (canJump) currentMove = moves[attacktype];
+                //Aerial
+                else
+                {
+                    currentMove = moves[attacktype + 1];
+                    anim.SetBool("landing", false);
+                }
+                moveString = state;
+                count = framecounter;
             }
-            else if (canJump)
-            {
-                currentMove = punchGround;
-            }
-            else
-            {
-                currentMove = punchAir;
-                anim.SetBool("landing", false);
-            }
-            moveString = "punch";
         }
-        if (anim.GetBool("kick"))
+        if (framecounter - count >= currentMove.Total)
         {
-            if (anim.GetBool("squat"))
-            {
-                currentMove = kickSquat;
-            }
-            else if (canJump)
-            {
-                currentMove = kickGround;
-            }
-            else
-            {
-                currentMove = kickAir;
-                anim.SetBool("landing", false);
-            }
-            moveString = "kick";
-        }
-
-        if (!anim.GetBool("punch") && !anim.GetBool("kick")) {
-            count = framecounter;
+            anim.SetBool(moveString, false);
+            anim.SetBool("landing", true);
+            moveString = "";
+            GameObject.Find(player).GetComponent<master>().canHit = true;
             currentMove = new Move();
-        }
-        else
-        {
-            if (framecounter - count >= currentMove.Total)
-            {
-                anim.SetBool(moveString, false);
-                anim.SetBool("landing", true);
-                state = "";
-                GameObject.Find(player).GetComponent<master>().canHit = true;
-            }
         }
         return currentMove.Damage;
     }
