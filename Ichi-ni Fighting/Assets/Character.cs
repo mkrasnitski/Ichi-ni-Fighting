@@ -15,7 +15,7 @@ public class Character : MonoBehaviour
     private int player_num;
     private string other_player;
     private int orientation;
-    private string state;
+    private string state = "";
     private float camWidth;
 
     //Attack Vars
@@ -125,22 +125,20 @@ public class Character : MonoBehaviour
 
     public void pollInput()
     {
-        if (canJump)
+        if (canJump && Input.GetKeyDown(up))
         {
-            if (Input.GetKeyDown(up) && Input.GetKey(left))
+            canJump = false;
+            if (Input.GetKey(left))
             {
                 state = "jumpLeft";
-                canJump = false;
             }
-            if (Input.GetKeyDown(up) && Input.GetKey(right))
+            else if (Input.GetKey(right))
             {
                 state = "jumpRight";
-                canJump = false;
             }
-            if (Input.GetKeyDown(up) && isLow(rb.velocity[0]))
+            else if (isLow(rb.velocity[0]))
             {
                 state = "jump";
-                canJump = false;
             }
         }
         if (Input.GetKeyDown(punch))
@@ -164,29 +162,12 @@ public class Character : MonoBehaviour
 
     public void move()
     {
-        //Left Jump
-        if (state == "jumpLeft")
-        {
-            rb.velocity = new Vector2(-jumpMult*walkspeed, jumpspeed);
-            anim.SetBool("jump", true);
-        }
-
-        //Right Jump
-        if (state == "jumpRight")
-        {
-            rb.velocity = new Vector2(jumpMult*walkspeed, jumpspeed);
-            anim.SetBool("jump", true);
-        }
-
-        //Vertical Jump
-        if (state == "jump")
-        {
-            rb.velocity = new Vector2(0f, jumpspeed);
-            anim.SetBool("jump", true);
-        }
+        if (state == "jumpLeft") rb.velocity = new Vector2(-jumpMult*walkspeed, jumpspeed);
+        if (state == "jumpRight") rb.velocity = new Vector2(jumpMult*walkspeed, jumpspeed);
+        if (state == "jump") rb.velocity = new Vector2(0f, jumpspeed);
+        if (state.Contains("jump"))anim.SetBool("jump", true);
 
         state = "";
-
         anim.SetInteger("walk", orientation);
 
         if (canJump && !(anim.GetBool("punch") || anim.GetBool("kick")))
@@ -238,7 +219,7 @@ public class Character : MonoBehaviour
             anim.SetBool(state, true);
             if (moveString == "")
             {
-                //Punches first half of move list, kick second half; 6 moves total
+                //Punches first half of move list, kicks second half; 6 moves total
                 int attacktype = 3 * Array.IndexOf(attackTypes, state);
 
                 //Squat
@@ -255,7 +236,7 @@ public class Character : MonoBehaviour
                 attackCounter = framecounter;
             }
         }
-        if (framecounter - attackCounter >= currentMove.Total)
+        if (framecounter - attackCounter >= currentMove.Total && moveString != "")
         {
             anim.SetBool(moveString, false);
             anim.SetBool("landing", true);

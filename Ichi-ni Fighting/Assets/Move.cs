@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-public class Move : MonoBehaviour
+public class Move
 {
     private int startup;
     private int active;
