@@ -41,7 +41,7 @@ public class Character : MonoBehaviour
     //Framecounters
     private int[] framecounters = new int[10];
     private int framecounter = 0;
-    private int count = 0;
+    private int attackCounter = 0;
 
     //Controls
     private KeyCode up = KeyCode.W;
@@ -252,10 +252,10 @@ public class Character : MonoBehaviour
                     anim.SetBool("landing", false);
                 }
                 moveString = state;
-                count = framecounter;
+                attackCounter = framecounter;
             }
         }
-        if (framecounter - count >= currentMove.Total)
+        if (framecounter - attackCounter >= currentMove.Total)
         {
             anim.SetBool(moveString, false);
             anim.SetBool("landing", true);
