@@ -9,14 +9,15 @@ public class Character : MonoBehaviour
     private float jumpspeed;
     private float walkspeed;
     private float jumpMult = 1.5f;
+    private float gScale = 17.5f;
     private int jumpsquat = 3;
+    private Vector2 initialV;
     private bool canJump = true;
     private string player;
     private int player_num;
     private string other_player;
     private int orientation;
     private string state = "";
-    private float camWidth;
 
     //Attack Vars
     private static string[] states = {"idleR", "idleL",
@@ -34,14 +35,15 @@ public class Character : MonoBehaviour
     private BoxCollider2D[] hitboxes = { };
     private bool hit = false;
     private string moveString = "";
+    private float MAX_HEALTH = 100.0f;
     private float health = 100.0f;
     private float healthDrain = 2.5f;
     private GameObject healthBar;
 
     //Framecounters
-    private int[] framecounters = new int[10];
     private int framecounter = 0;
     private int attackCounter = 0;
+    private int stunCounter = 0;
 
     //Controls
     private KeyCode up = KeyCode.W;
@@ -52,12 +54,12 @@ public class Character : MonoBehaviour
     private KeyCode kick = KeyCode.H;
 
     //Moves
-    private static Move punchGround = new Move(2, 4, 5, 10);
-    private static Move punchAir = new Move(2, 4, 10, 11);
-    private static Move punchSquat = new Move(2, 4, 5, 12);
+    private static Move punchGround = new Move(2, 4, 5, 9);
+    private static Move punchAir = new Move(2, 4, 10, 8);
+    private static Move punchSquat = new Move(2, 4, 5, 7);
     private static Move kickGround = new Move(2, 4, 13, 13);
-    private static Move kickAir = new Move(2, 4, 15, 14);
-    private static Move kickSquat = new Move(2, 4, 10, 15);
+    private static Move kickAir = new Move(2, 4, 15, 12);
+    private static Move kickSquat = new Move(2, 4, 10, 11);
     private static string[] attackTypes = { "punch", "kick" };
     private static Move[] moves = { punchGround, punchAir, punchSquat, kickGround, kickAir, kickSquat };
     private Move currentMove = new Move();
@@ -117,15 +119,9 @@ public class Character : MonoBehaviour
         }
     }
 
-    private bool isLow(float f)
-    {
-        float threshold = 0.005f;
-        return Mathf.Abs(f) <= threshold;
-    }
-
     public void pollInput()
     {
-        if (canJump && Input.GetKeyDown(up))
+        if (canJump && Input.GetKeyDown(up) && !(anim.GetBool("punch") || anim.GetBool("kick")))
         {
             canJump = false;
             if (Input.GetKey(left))
@@ -136,7 +132,7 @@ public class Character : MonoBehaviour
             {
                 state = "jumpRight";
             }
-            else if (isLow(rb.velocity[0]))
+            else if (isLow(rb.velocity.x))
             {
                 state = "jump";
             }
@@ -200,16 +196,11 @@ public class Character : MonoBehaviour
         }
         
         //Single Jump only
-        if (isLow(rb.velocity[1]))
+        if (isLow(rb.velocity.y))
         {
             canJump = true;
             anim.SetBool("jump", false);
         }
-    }
-
-    public void waitFrames(int frames)
-    {
-
     }
 
     public float attack()
@@ -242,11 +233,12 @@ public class Character : MonoBehaviour
             anim.SetBool("landing", true);
             moveString = "";
             GameObject.Find(player).GetComponent<master>().canHit = true;
+            GameObject.Find("hitCircle").GetComponent<SpriteRenderer>().enabled = false;
             currentMove = new Move();
         }
         return currentMove.Damage;
     }
-
+    
     public void doDamage()
     {
         if (hit)
@@ -257,7 +249,29 @@ public class Character : MonoBehaviour
             hit = false;
             GameObject.Find(other_player).GetComponent<master>().canHit = false;
         }
-        animateHealthBar(healthBar, health / 100);
+        animateHealthBar(healthBar, health / MAX_HEALTH);
+    }
+
+    public void hitStun(int frames)
+    {
+        if (frames - stunCounter > 0)
+        {
+            if(rb.velocity != new Vector2(0, 0))
+            {
+                initialV = new Vector2(rb.velocity.x, rb.velocity.y/4);
+            }
+            rb.velocity = new Vector2(0, 0);
+            rb.gravityScale = 0;
+            stunCounter++;
+        }
+        else
+        {
+            stunCounter = 0;
+            GameObject.Find(player).GetComponent<master>().hitStun = false;
+            rb.gravityScale = gScale;
+            rb.velocity = initialV;
+            initialV = new Vector2(0, 0);
+        }
     }
 
     private void animateHealthBar(GameObject h, float size)
@@ -269,6 +283,21 @@ public class Character : MonoBehaviour
             if (h_size < size) h_size = size;
             h.transform.localScale = new Vector3(h_size, 1, 1);
         }
+    }
+
+    public string checkWin()
+    {
+        string winner = "";
+        if(health == 0)
+        {
+            winner = other_player;
+        }
+        return winner;
+    }
+
+    public int getOrientation()
+    {
+        return orientation; 
     }
 
     public void boxUpdate()
@@ -290,10 +319,17 @@ public class Character : MonoBehaviour
             hit = true;
         }
     }
+    private bool isLow(float f)
+    {
+        float threshold = 0.005f;
+        return Mathf.Abs(f) <= threshold && !GameObject.Find(player).GetComponent<master>().hitStun;
+    }
 
     public void advanceFrame()
     {
-        framecounter++;
-        state = "";
+        if (!GameObject.Find(player).GetComponent<master>().hitStun)
+        {
+            framecounter++;
+        }
     }
 }

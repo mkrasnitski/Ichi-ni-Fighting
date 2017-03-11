@@ -9,12 +9,16 @@ public class master : MonoBehaviour {
     Character c;
     Rigidbody2D rb;
     Animator anim;
+    PolygonCollider2D[] pc;
+    BoxCollider2D[] bc;
     string p1_name = "player1";
     string p2_name = "player2";
     float camWidth;
 
     public float currentDamage;
     public bool canHit;
+    public bool hitStun;
+    public string winner;
 
     void Start ()
     { 
@@ -22,8 +26,8 @@ public class master : MonoBehaviour {
         anim = GetComponent<Animator>();
         camWidth = 2f * Camera.main.orthographicSize * Camera.main.aspect;
         canHit = true;
-        PolygonCollider2D[] pc = transform.Find("Hurt").GetComponents<PolygonCollider2D>();
-        BoxCollider2D[] bc = transform.Find("Hit").GetComponents<BoxCollider2D>();
+        pc = transform.Find("Hurt").GetComponents<PolygonCollider2D>();
+        bc = transform.Find("Hit").GetComponents<BoxCollider2D>();
         c = new Character(8f, 27.5f, 3, rb, anim, name, pc, bc);
 
         if (name == p1_name)
@@ -57,6 +61,8 @@ public class master : MonoBehaviour {
 
     void FixedUpdate ()
     {
+        winner = c.checkWin();
+        if (hitStun) c.hitStun(5);
         currentDamage = c.attack();
         ClampMovement();
         c.move();
@@ -71,15 +77,38 @@ public class master : MonoBehaviour {
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        if (canHit)
+        {
+            hitStun = true;
+        }
+        //Is hit
         if (collision is BoxCollider2D)
         {
             c.ishit();
             canHit = false;
         }
+        //Is hitting
+        if(collision is PolygonCollider2D)
+        {
+            if (canHit)
+            {
+                var hitCircle = GameObject.Find("hitCircle");
+                foreach (var hitbox in bc)
+                {
+                    if (hitbox.enabled)
+                    {
+                        Vector3 p = hitbox.transform.position;
+                        hitCircle.transform.position = hitbox.bounds.center + new Vector3((-2*c.getOrientation()+1)*hitbox.bounds.extents.x / 2, 0, 0);
+                    }
+                }
+                hitCircle.GetComponent<SpriteRenderer>().enabled = true;
+            }
+        }
     }
 
     void ClampMovement()
     {
+        camWidth = 2f * Camera.main.orthographicSize * Camera.main.aspect;
         float limit = camWidth / 2 - 1;
         GetComponent<Transform>().position = new Vector3(Mathf.Clamp(transform.position.x, -limit, limit), transform.position.y, transform.position.z);
     }
