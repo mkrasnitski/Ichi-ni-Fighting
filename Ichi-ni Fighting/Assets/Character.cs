@@ -36,7 +36,7 @@ public class Character : MonoBehaviour
     private bool hit = false;
     private string moveString = "";
     private float MAX_HEALTH = 100.0f;
-    private float health = 100.0f;
+    public float health = 100.0f;
     private float healthDrain = 2.5f;
     private GameObject healthBar;
 
@@ -249,6 +249,7 @@ public class Character : MonoBehaviour
             hit = false;
             GameObject.Find(other_player).GetComponent<master>().canHit = false;
         }
+        GameObject.Find("Main Camera").GetComponent<init>().doneAnimations = false;
         animateHealthBar(healthBar, health / MAX_HEALTH);
     }
 
@@ -282,6 +283,10 @@ public class Character : MonoBehaviour
             h_size -= 0.01f * healthDrain;
             if (h_size < size) h_size = size;
             h.transform.localScale = new Vector3(h_size, 1, 1);
+        }
+        else
+        {
+            GameObject.Find("Main Camera").GetComponent<init>().doneAnimations = true;
         }
     }
 

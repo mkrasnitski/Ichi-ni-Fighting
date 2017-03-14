@@ -10,6 +10,13 @@ public class init : MonoBehaviour {
     float xScale;
     float yScale;
     float zScale;
+    public string winner;
+    public bool stop = false;
+    public bool doneAnimations = true;
+    static int numRounds = 3;
+    static int maxWins = numRounds / 2 + 1;
+    int p1Wins = 0;
+    int p2Wins = 0;
 
 	void Start () {
         f = GameObject.Find("floor");
@@ -23,23 +30,24 @@ public class init : MonoBehaviour {
     {
         camWidth = cam.orthographicSize * cam.aspect / 2;
         GameObject.Find("floor").transform.localScale = new Vector3(camWidth / xScale, yScale, zScale);
-        string w = getWinner();
-        if(w != "")
+        if(winner != "")
         {
-            SceneManager.LoadScene("Start");
-        }
-    }
-
-    private string getWinner()
-    {
-        string w = "";
-        for(int i = 1; i < 3; i++)
-        {
-            if(w == "")
+            switch (winner.Trim("player".ToCharArray()))
             {
-                w = GameObject.Find("player" + i).GetComponent<master>().winner;
+                case "1":
+                    p1Wins++;
+                    if(doneAnimations) stop = true;
+                    break;
+                case "2":
+                    p2Wins++;
+                    if(doneAnimations) stop = true;
+                    break;
             }
+            if(p1Wins == maxWins || p2Wins == maxWins)
+            {
+                SceneManager.LoadScene("Start");
+            }
+            winner = "";
         }
-        return w;
     }
 }

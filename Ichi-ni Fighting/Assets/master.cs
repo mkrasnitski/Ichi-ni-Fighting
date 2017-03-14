@@ -11,6 +11,7 @@ public class master : MonoBehaviour {
     Animator anim;
     PolygonCollider2D[] pc;
     BoxCollider2D[] bc;
+    init init;
     string p1_name = "player1";
     string p2_name = "player2";
     float camWidth;
@@ -18,12 +19,12 @@ public class master : MonoBehaviour {
     public float currentDamage;
     public bool canHit;
     public bool hitStun;
-    public string winner;
 
     void Start ()
     { 
         rb = GetComponent<Rigidbody2D>();   
         anim = GetComponent<Animator>();
+        init = GameObject.Find("Main Camera").GetComponent<init>();
         camWidth = 2f * Camera.main.orthographicSize * Camera.main.aspect;
         canHit = true;
         pc = transform.Find("Hurt").GetComponents<PolygonCollider2D>();
@@ -61,13 +62,16 @@ public class master : MonoBehaviour {
 
     void FixedUpdate ()
     {
-        winner = c.checkWin();
-        if (hitStun) c.hitStun(5);
-        currentDamage = c.attack();
-        ClampMovement();
-        c.move();
-        c.doDamage();
-        c.advanceFrame();
+        if (!init.stop)
+        {
+            if (init.winner == "") init.winner = c.checkWin();
+            if (hitStun) c.hitStun(5);
+            currentDamage = c.attack();
+            ClampMovement();
+            c.move();
+            c.doDamage();
+            c.advanceFrame();
+        }
     }
 
     void LateUpdate()
