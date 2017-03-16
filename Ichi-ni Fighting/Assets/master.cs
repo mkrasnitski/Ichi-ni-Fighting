@@ -64,7 +64,7 @@ public class master : MonoBehaviour {
     {
         if (!init.stop)
         {
-            if (init.winner == "") init.winner = c.checkWin();
+            if(init.winner == "") init.winner = c.checkWin();
             if (hitStun) c.hitStun(5);
             currentDamage = c.attack();
             ClampMovement();

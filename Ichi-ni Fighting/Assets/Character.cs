@@ -121,29 +121,32 @@ public class Character : MonoBehaviour
 
     public void pollInput()
     {
-        if (canJump && Input.GetKeyDown(up) && !(anim.GetBool("punch") || anim.GetBool("kick")))
+        if(!(anim.GetBool("punch") || anim.GetBool("kick")))
         {
-            canJump = false;
-            if (Input.GetKey(left))
+            if (canJump && Input.GetKeyDown(up))
             {
-                state = "jumpLeft";
+                canJump = false;
+                if (Input.GetKey(left))
+                {
+                    state = "jumpLeft";
+                }
+                else if (Input.GetKey(right))
+                {
+                    state = "jumpRight";
+                }
+                else if (isLow(rb.velocity.x))
+                {
+                    state = "jump";
+                }
             }
-            else if (Input.GetKey(right))
+            if (Input.GetKeyDown(punch))
             {
-                state = "jumpRight";
+                state = "punch";
             }
-            else if (isLow(rb.velocity.x))
+            if (Input.GetKeyDown(kick))
             {
-                state = "jump";
+                state = "kick";
             }
-        }
-        if (Input.GetKeyDown(punch))
-        {
-            state = "punch";
-        }
-        if (Input.GetKeyDown(kick))
-        {
-            state = "kick";
         }
         
         if (GameObject.Find(player).transform.position.x <= GameObject.Find(other_player).transform.position.x)
@@ -154,6 +157,10 @@ public class Character : MonoBehaviour
         {
             orientation = 1;
         }
+        if (state != "")
+        {
+            print(state);
+        }
     }
 
     public void move()
@@ -163,7 +170,6 @@ public class Character : MonoBehaviour
         if (state == "jump") rb.velocity = new Vector2(0f, jumpspeed);
         if (state.Contains("jump"))anim.SetBool("jump", true);
 
-        state = "";
         anim.SetInteger("walk", orientation);
 
         if (canJump && !(anim.GetBool("punch") || anim.GetBool("kick")))
@@ -201,6 +207,8 @@ public class Character : MonoBehaviour
             canJump = true;
             anim.SetBool("jump", false);
         }
+
+        state = "";
     }
 
     public float attack()
